@@ -1,0 +1,130 @@
+name: "mcp-reportcard"
+description: "Grade your MCP server's tools (A-F): lint descriptions and schemas, measure token cost, fuzz error handling."
+branding:
+  icon: "check-square"
+  color: "green"
+
+inputs:
+  server:
+    description: "What to check: a command that starts a stdio server (e.g. 'python server.py'), an http(s) URL, or a saved tools/list JSON file."
+    required: true
+  fuzz:
+    description: "Also call read-only tools with bad input to test error handling ('true'/'false'). Needs a live server."
+    default: "false"
+  fail-under:
+    description: "Fail the step if the score is below this (0-100). Empty = never fail on score."
+    default: ""
+  args:
+    description: "Extra arguments passed to `mcp-reportcard check` (e.g. '--timeout 20 --server-logs')."
+    default: ""
+  version:
+    description: "mcp-reportcard version from PyPI (e.g. '0.1.1'). Empty = the version of this action's ref."
+    default: ""
+  comment:
+    description: "Post/update a sticky PR comment with the report card (needs `pull-requests: write`)."
+    default: "true"
+
+outputs:
+  grade:
+    description: "Letter grade, A-F."
+    value: ${{ steps.check.outputs.grade }}
+  score:
+    description: "Score, 0-100."
+    value: ${{ steps.check.outputs.score }}
+  report:
+    description: "Path to the Markdown report."
+    value: ${{ steps.check.outputs.report }}
+  json:
+    description: "Path to the JSON report."
+    value: ${{ steps.check.outputs.json }}
+
+runs:
+  using: "composite"
+  steps:
+    # Installed into its own venv so the Python your server runs on is left untouched.
+    - name: Install mcp-reportcard
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        PY=""
+        for c in python3 python; do
+          if command -v "$c" >/dev/null 2>&1 && "$c" -c "import sys; assert sys.version_info >= (3, 10)" 2>/dev/null; then PY="$c"; break; fi
+        done
+        if [ -z "$PY" ]; then echo "::error::mcp-reportcard needs Python 3.10+ on PATH (add actions/setup-python first)"; exit 1; fi
+        VENV="$RUNNER_TEMP/mcp-reportcard-venv"
+        "$PY" -m venv "$VENV"
+        if [ -x "$VENV/bin/python" ]; then BIN="$VENV/bin"; else BIN="$VENV/Scripts"; fi
+        if [ -n "$VERSION" ]; then SPEC="mcp-reportcard[tokens]==$VERSION"; else SPEC="$ACTION_PATH[tokens]"; fi
+        "$BIN/python" -m pip install --quiet --disable-pip-version-check "$SPEC"
+        echo "MCP_REPORTCARD_BIN=$BIN" >> "$GITHUB_ENV"
+
+    - name: Run mcp-reportcard
+      id: check
+      shell: bash
+      env:
+        SERVER: ${{ inputs.server }}
+        FUZZ: ${{ inputs.fuzz }}
+        FAIL_UNDER: ${{ inputs.fail-under }}
+        EXTRA_ARGS: ${{ inputs.args }}
+      run: |
+        OUT="$RUNNER_TEMP/mcp-reportcard"
+        mkdir -p "$OUT"
+        set -- check "$SERVER" -f markdown -o "$OUT/report.md" --json-out "$OUT/report.json"
+        if [ "$FUZZ" = "true" ]; then set -- "$@" --fuzz; fi
+        if [ -n "$FAIL_UNDER" ]; then set -- "$@" --fail-under "$FAIL_UNDER"; fi
+        set +e
+        # shellcheck disable=SC2086  # EXTRA_ARGS is intentionally word-split
+        "$MCP_REPORTCARD_BIN/mcp-reportcard" "$@" $EXTRA_ARGS
+        CODE=$?
+        set -e
+        echo "exit-code=$CODE" >> "$GITHUB_OUTPUT"
+        if [ -f "$OUT/report.json" ]; then
+          "$MCP_REPORTCARD_BIN/python" - "$OUT/report.json" >> "$GITHUB_OUTPUT" <<'PY'
+        import json, sys
+        d = json.load(open(sys.argv[1], encoding="utf-8"))
+        print(f"grade={d['grade']}")
+        print(f"score={d['score']}")
+        PY
+          echo "report=$OUT/report.md" >> "$GITHUB_OUTPUT"
+          echo "json=$OUT/report.json" >> "$GITHUB_OUTPUT"
+          cat "$OUT/report.md" >> "$GITHUB_STEP_SUMMARY"
+        else
+          echo "### mcp-reportcard could not check \`$SERVER\` (exit code $CODE). See the step log." >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Comment on the PR
+      if: ${{ always() && inputs.comment == 'true' && github.event_name == 'pull_request' && steps.check.outputs.report != '' }}
+      uses: actions/github-script@v7
+      env:
+        REPORT: ${{ steps.check.outputs.report }}
+      with:
+        script: |
+          const fs = require('fs');
+          const marker = '<!-- mcp-reportcard -->';
+          const report = fs.readFileSync(process.env.REPORT, 'utf8').trim();
+          const body = `${marker}\n${report}`;
+          const { owner, repo } = context.repo;
+          const issue_number = context.issue.number;
+          try {
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+          } catch (e) {
+            core.warning(`Could not post the PR comment (does the job have 'pull-requests: write'?): ${e.message}`);
+          }
+
+    - name: Apply result
+      shell: bash
+      env:
+        CODE: ${{ steps.check.outputs.exit-code }}
+        GRADE: ${{ steps.check.outputs.grade }}
+        SCORE: ${{ steps.check.outputs.score }}
+      run: |
+        if [ -n "$GRADE" ]; then echo "mcp-reportcard: grade $GRADE, score $SCORE/100"; fi
+        exit "${CODE:-1}"

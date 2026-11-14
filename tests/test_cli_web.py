@@ -31,6 +31,15 @@ def test_markdown_to_file(tmp_path):
     assert "MCP report card" in out.read_text(encoding="utf-8")
 
 
+def test_json_out_alongside_markdown(tmp_path):
+    md, js = tmp_path / "r.md", tmp_path / "r.json"
+    result = runner.invoke(app, ["check", BAD, "-f", "markdown", "-o", str(md), "--json-out", str(js),
+                                 "--fail-under", "90"])
+    assert result.exit_code == 1  # gate still applies, and both files are written first
+    assert "MCP report card" in md.read_text(encoding="utf-8")
+    assert json.loads(js.read_text(encoding="utf-8"))["grade"] in "ABCDF"
+
+
 def test_bad_input_exit_code(tmp_path):
     broken = tmp_path / "broken.json"
     broken.write_text("{nope", encoding="utf-8")

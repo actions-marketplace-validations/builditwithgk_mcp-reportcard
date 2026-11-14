@@ -10,4 +10,4 @@ from mcp_reportcard.loader import load_tools
 from mcp_reportcard.models import Issue, Report, Severity
 
 __all__ = ["Issue", "Report", "Severity", "analyze", "load_tools"]
-__version__ = "0.1.0"
+__version__ = "0.1.1"

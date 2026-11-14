@@ -22,3 +22,49 @@ jobs:
       - run: pytest -q
       - name: Dogfood on the good example
         run: mcp-reportcard check "python examples/good_server.py" --fuzz --fail-under 90 -f markdown
+
+  action:
+    # Exercises action.yml exactly as users call it (`uses: builditwithgk/mcp-reportcard@v1`).
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the example server's dependency (the user's own setup)
+        run: pip install "mcp>=2.0"
+
+      - name: Live server with fuzzing should pass
+        id: good
+        uses: ./
+        with:
+          server: python examples/good_server.py
+          fuzz: "true"
+          fail-under: "90"
+          comment: "false"
+
+      - name: Saved JSON below the bar should fail
+        id: bad
+        continue-on-error: true
+        uses: ./
+        with:
+          server: examples/bad_tools.json
+          fail-under: "90"
+          comment: "false"
+
+      - name: Check outputs
+        shell: bash
+        env:
+          GOOD_GRADE: ${{ steps.good.outputs.grade }}
+          GOOD_SCORE: ${{ steps.good.outputs.score }}
+          BAD_GRADE: ${{ steps.bad.outputs.grade }}
+          BAD_OUTCOME: ${{ steps.bad.outcome }}
+        run: |
+          echo "good: $GOOD_GRADE $GOOD_SCORE | bad: $BAD_GRADE ($BAD_OUTCOME)"
+          test "$GOOD_GRADE" = "A"
+          test -n "$BAD_GRADE" && test "$BAD_GRADE" != "A"
+          test "$BAD_OUTCOME" = "failure"

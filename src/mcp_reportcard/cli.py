@@ -108,6 +108,8 @@ def check(
         "--fail-under", min=0, max=100, help="Exit with code 1 if the score is below this (for CI).")] = None,
     server_logs: Annotated[bool, typer.Option(
         "--server-logs", help="Show a stdio server's own stderr output (hidden by default).")] = False,
+    json_out: Annotated[Path | None, typer.Option(
+        "--json-out", help="Also write the JSON report to this file (e.g. for CI alongside Markdown).")] = None,
 ) -> None:
     """Lint a server's tools, estimate token cost, optionally fuzz, and print a report card."""
     if server_logs:
@@ -148,6 +150,9 @@ def check(
             err.print(f"Report written to {output} (grade {result.grade}, score {result.score}).")
         else:
             typer.echo(text)
+
+    if json_out:
+        json_out.write_text(render.to_json(result), encoding="utf-8")
 
     if fail_under is not None and result.score < fail_under:
         err.print(f"[red]Score {result.score} is below --fail-under {fail_under}.[/]")

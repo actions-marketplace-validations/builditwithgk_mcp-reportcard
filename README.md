@@ -79,25 +79,45 @@ mcp-reportcard dump "python server.py" -o tools.json
 mcp-reportcard rules
 ```
 
-## Use in CI
+## GitHub Action
 
-`--fail-under` exits 1 when the score drops below the threshold:
+Grade your server on every pull request. The action writes the report card to the job summary, keeps one sticky PR comment up to date, and fails the check when the score drops below your bar:
 
 ```yaml
 # .github/workflows/mcp-reportcard.yml
 on: pull_request
+permissions:
+  contents: read
+  pull-requests: write   # for the PR comment
 jobs:
   mcp-reportcard:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5          # or setup-node, etc. — whatever your server needs
         with: { python-version: "3.12" }
-      - run: pip install mcp-reportcard
-      - run: mcp-reportcard check "python server.py" --fuzz -f markdown -o mcp-reportcard.md --fail-under 80
+      - run: pip install -r requirements.txt   # your server's own dependencies
+      - uses: builditwithgk/mcp-reportcard@v1
+        with:
+          server: python server.py             # a command, an http(s) URL, or a saved tools/list JSON
+          fuzz: "true"
+          fail-under: "80"
 ```
 
-This repo dogfoods it: CI runs `mcp-reportcard` against [`examples/good_server.py`](https://github.com/builditwithgk/mcp-reportcard/blob/main/examples/good_server.py) with `--fail-under 90` on Linux, macOS and Windows.
+| Input | Default | |
+| --- | --- | --- |
+| `server` | — | **Required.** Command that starts a stdio server, an http(s) URL, or a `tools/list` JSON file. |
+| `fuzz` | `false` | Also call read-only tools with bad input. Needs a live server. |
+| `fail-under` | — | Fail the step below this score (0-100). |
+| `args` | — | Extra `mcp-reportcard check` arguments, e.g. `--timeout 20 --server-logs`. |
+| `version` | this ref | Pin a PyPI version instead, e.g. `0.1.1`. |
+| `comment` | `true` | Post/update the sticky PR comment. |
+
+Outputs: `grade`, `score`, `report` (Markdown path) and `json` (JSON path). mcp-reportcard installs into its own virtualenv, so the Python your server runs on is left untouched.
+
+Prefer the plain CLI? `pip install mcp-reportcard` and `mcp-reportcard check "python server.py" --fail-under 80` (exits 1 below the bar; `--json-out` writes JSON alongside a Markdown report).
+
+This repo dogfoods both: CI runs the CLI and the action against [`examples/good_server.py`](https://github.com/builditwithgk/mcp-reportcard/blob/main/examples/good_server.py) with `--fail-under 90` on Linux, macOS and Windows.
 
 ## What it checks
 
