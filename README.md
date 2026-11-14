@@ -6,6 +6,8 @@
 
 When an agent picks the wrong tool, sends malformed arguments, or burns context on bloated definitions, the cause is usually in the server — and the model only ever sees what your `tools/list` says. `mcp-reportcard` checks exactly that, in seconds, for any MCP server in any language.
 
+![mcp-reportcard grading a sloppy MCP server (D) and the same service written properly (A)](https://raw.githubusercontent.com/builditwithgk/mcp-reportcard/main/docs/demo.gif)
+
 **Try it in the browser:** [huggingface.co/spaces/builditwithgk/mcp-reportcard](https://huggingface.co/spaces/builditwithgk/mcp-reportcard) — paste a `tools/list` JSON, get the report card.
 
 ## Why it's different
