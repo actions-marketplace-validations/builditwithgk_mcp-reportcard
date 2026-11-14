@@ -1,0 +1,46 @@
+name: Rule false positive / false negative
+description: A check flagged something that's fine, or missed a real problem
+labels: ["rule-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Rule feedback is the most useful thing you can send — the rules were tuned against real servers and will keep being tuned that way. Run `mcp-reportcard rules` to see every rule ID.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of problem?
+      options:
+        - False positive (flagged something that's actually fine)
+        - False negative (missed a real problem)
+        - Wrong severity or score impact
+        - The suggested fix is wrong or unhelpful
+    validations:
+      required: true
+  - type: input
+    id: rule
+    attributes:
+      label: Rule ID
+      placeholder: D005
+    validations:
+      required: true
+  - type: textarea
+    id: tool
+    attributes:
+      label: The tool definition involved
+      description: Paste the relevant tool from `mcp-reportcard dump ...` (just the one tool is fine). Remove anything private.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: reported
+    attributes:
+      label: What mcp-reportcard said
+      render: text
+  - type: textarea
+    id: why
+    attributes:
+      label: Why you think it's wrong
+      description: e.g. "File paths in this error are intentional — the tool reports which directory is allowed."
+    validations:
+      required: true

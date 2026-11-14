@@ -1,0 +1,63 @@
+name: Bug report
+description: mcp-reportcard crashed, hung, or did something wrong (not a rule result you disagree with)
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! If a **rule** fired when it shouldn't (or missed something), use the *Rule false positive / false negative* template instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you run, what did you expect, and what happened instead?
+      placeholder: |
+        Ran `mcp-reportcard check "npx -y my-server" --fuzz` and it hung after connecting.
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Exact command
+      render: shell
+      placeholder: mcp-reportcard check "python server.py" --fuzz
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output or error
+      description: Paste the full output. Add `--server-logs` to include the server's own stderr. Remove any secrets.
+      render: text
+  - type: dropdown
+    id: transport
+    attributes:
+      label: How were you connecting?
+      options:
+        - stdio (a command)
+        - Streamable HTTP (a URL)
+        - Saved tools/list JSON file
+        - Web demo (Hugging Face Space)
+    validations:
+      required: true
+  - type: input
+    id: server
+    attributes:
+      label: Server being checked
+      description: Name/link of the MCP server and the language it's written in, if you can share it.
+      placeholder: "@modelcontextprotocol/server-filesystem (Node)"
+  - type: input
+    id: version
+    attributes:
+      label: mcp-reportcard version
+      description: Output of `mcp-reportcard --version`
+      placeholder: mcp-reportcard 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: OS and Python version
+      placeholder: Windows 11, Python 3.12
+    validations:
+      required: true

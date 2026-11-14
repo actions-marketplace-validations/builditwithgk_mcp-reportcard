@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/builditwithgk/mcp-reportcard/discussions
+    about: Ask how to use mcp-reportcard, share results, or discuss ideas before opening an issue.
+  - name: Try it in the browser
+    url: https://huggingface.co/spaces/builditwithgk/mcp-reportcard
+    about: Paste a tools/list JSON and get a report card without installing anything.
