@@ -1,4 +1,4 @@
-"""Data types shared by every part of MCP Doctor."""
+"""Data types shared by every part of mcp-reportcard."""
 
 from __future__ import annotations
 

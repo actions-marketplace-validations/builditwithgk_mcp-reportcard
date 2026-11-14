@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>mcp-doctor</title>
+<title>mcp-reportcard</title>
 <meta name="description" content="Paste an MCP server's tools/list JSON and get a graded report card: descriptions, schemas, safety annotations and token cost. Runs entirely in your browser.">
 <style>
   :root {
@@ -63,7 +63,7 @@
 </head>
 <body>
 <main>
-  <h1>🩺 mcp-doctor</h1>
+  <h1>📋 mcp-reportcard</h1>
   <p class="lede">A health check for MCP servers. Paste a server's <code>tools/list</code> JSON and get a graded
     report card for its tool names, descriptions, schemas, safety annotations and token cost, with a concrete fix
     for every issue. The checker runs <strong>entirely in your browser</strong> (Python via Pyodide), so nothing
@@ -79,14 +79,14 @@
       <span id="status" class="hint">Loading Python in your browser…</span>
     </div>
     <p class="hint">Get the JSON from your own server with the CLI:
-      <code>mcp-doctor dump "python server.py"</code>. The CLI can also fuzz a live server's error handling —
-      <a href="https://github.com/builditwithgk/mcp-doctor">see GitHub</a>.</p>
+      <code>mcp-reportcard dump "python server.py"</code>. The CLI can also fuzz a live server's error handling —
+      <a href="https://github.com/builditwithgk/mcp-reportcard">see GitHub</a>.</p>
   </div>
 
   <div id="out"></div>
 
   <footer>
-    <a href="https://github.com/builditwithgk/mcp-doctor">mcp-doctor</a> is open source (MIT). Built by Gopi K Aitham
+    <a href="https://github.com/builditwithgk/mcp-reportcard">mcp-reportcard</a> is open source (MIT). Built by Gopi K Aitham
     (<a href="https://github.com/builditwithgk">builditwithgk</a>) · <a href="https://scaleup-solutions.in/">scaleup-solutions.in</a>.
     Token counts here use a characters/4 estimate; the CLI with <code>[tokens]</code> uses tiktoken.
   </footer>
@@ -103,9 +103,9 @@ let py = null;
 
 const RUN = `
 import json
-from mcp_doctor.analyze import analyze
-from mcp_doctor.loader import LoadError, load_tools_text
-from mcp_doctor.report import sorted_issues
+from mcp_reportcard.analyze import analyze
+from mcp_reportcard.loader import LoadError, load_tools_text
+from mcp_reportcard.report import sorted_issues
 
 def run(src):
     try:
@@ -123,11 +123,11 @@ def run(src):
 async function boot() {
   try {
     py = await loadPyodide();
-    py.FS.mkdirTree("/app/mcp_doctor");
+    py.FS.mkdirTree("/app/mcp_reportcard");
     for (const m of MODULES) {
-      const res = await fetch(`mcp_doctor/${m}.py`);
-      if (!res.ok) throw new Error(`could not load mcp_doctor/${m}.py`);
-      py.FS.writeFile(`/app/mcp_doctor/${m}.py`, await res.text());
+      const res = await fetch(`mcp_reportcard/${m}.py`);
+      if (!res.ok) throw new Error(`could not load mcp_reportcard/${m}.py`);
+      py.FS.writeFile(`/app/mcp_reportcard/${m}.py`, await res.text());
     }
     py.runPython("import sys; sys.path.insert(0, '/app')\n" + RUN);
     $("status").textContent = "Ready";

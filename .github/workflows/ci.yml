@@ -21,4 +21,4 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: pytest -q
       - name: Dogfood on the good example
-        run: mcp-doctor check "python examples/good_server.py" --fuzz --fail-under 90 -f markdown
+        run: mcp-reportcard check "python examples/good_server.py" --fuzz --fail-under 90 -f markdown

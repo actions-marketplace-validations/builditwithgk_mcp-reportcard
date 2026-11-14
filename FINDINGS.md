@@ -1,6 +1,6 @@
-# FINDINGS — mcp-doctor field test
+# FINDINGS — mcp-reportcard field test
 
-Date: 2026-11-14 · mcp-doctor v0.1.0 · Windows 11, Python 3.13, Node 22 · every run used `--fuzz` (read-only tools only)
+Date: 2026-11-14 · mcp-reportcard v0.1.0 · Windows 11, Python 3.13, Node 22 · every run used `--fuzz` (read-only tools only)
 
 ## Servers tested
 | Server | Version | Language | Transport |

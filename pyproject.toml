@@ -3,7 +3,7 @@ requires = ["hatchling>=1.24"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mcp-doctor"
+name = "mcp-reportcard"
 version = "0.1.0"
 description = "A health check for MCP servers: lint tool descriptions and schemas, estimate token cost, fuzz error handling, and get a graded report card."
 readme = "README.md"
@@ -33,14 +33,14 @@ dev = ["pytest>=8", "tiktoken>=0.7", "flask>=3.0"]
 
 [project.urls]
 Homepage = "https://scaleup-solutions.in/"
-Repository = "https://github.com/builditwithgk/mcp-doctor"
-Issues = "https://github.com/builditwithgk/mcp-doctor/issues"
+Repository = "https://github.com/builditwithgk/mcp-reportcard"
+Issues = "https://github.com/builditwithgk/mcp-reportcard/issues"
 
 [project.scripts]
-mcp-doctor = "mcp_doctor.cli:app"
+mcp-reportcard = "mcp_reportcard.cli:app"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mcp_doctor"]
+packages = ["src/mcp_reportcard"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

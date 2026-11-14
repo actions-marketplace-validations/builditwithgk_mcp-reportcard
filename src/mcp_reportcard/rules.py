@@ -9,11 +9,11 @@ import re
 from collections.abc import Iterator
 from typing import Any
 
-from mcp_doctor.models import Issue, Severity
+from mcp_reportcard.models import Issue, Severity
 
 E, W, I = Severity.ERROR, Severity.WARNING, Severity.INFO
 
-# Rule catalogue: id -> (severity, short title). Used for docs and `mcp-doctor rules`.
+# Rule catalogue: id -> (severity, short title). Used for docs and `mcp-reportcard rules`.
 RULES: dict[str, tuple[Severity, str]] = {
     "N001": (E, "Tool has no name"),
     "N002": (E, "Duplicate tool name"),

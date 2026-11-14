@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MCP Doctor</title>
+<title>mcp-reportcard</title>
 <meta name="description" content="Paste an MCP server's tools/list JSON and get a graded report card: descriptions, schemas, safety annotations and token cost.">
 <style>
   :root {
@@ -60,7 +60,7 @@
 </head>
 <body>
 <main>
-  <h1>MCP Doctor</h1>
+  <h1>mcp-reportcard</h1>
   <p class="lede">A health check for MCP servers. Paste a server's <code>tools/list</code> JSON and get a graded
     report card for its tool names, descriptions, schemas, safety annotations and token cost, with a concrete fix
     for every issue. Nothing you paste is stored or sent anywhere.</p>
@@ -73,8 +73,8 @@
       <a class="btn" href="?sample=bad">Load a bad example</a>
       <a class="btn" href="?sample=good">Load a good example</a>
     </div>
-    <p class="hint">Get the JSON from your own server with <code>pip install mcp-doctor</code> then
-      <code>mcp-doctor dump "python server.py"</code>. The CLI can also fuzz a live server's error handling.</p>
+    <p class="hint">Get the JSON from your own server with <code>pip install mcp-reportcard</code> then
+      <code>mcp-reportcard dump "python server.py"</code>. The CLI can also fuzz a live server's error handling.</p>
   </form>
 
   {% if error %}<div class="error"><strong>Couldn't read that:</strong> {{ error }}</div>{% endif %}
@@ -123,7 +123,7 @@
   {% endif %}
 
   <footer>
-    <a href="https://github.com/builditwithgk/mcp-doctor">mcp-doctor</a> is open source (MIT). Built by Gopi K Aitham (<a href="https://github.com/builditwithgk">builditwithgk</a>) · <a href="https://scaleup-solutions.in/">scaleup-solutions.in</a>.
+    <a href="https://github.com/builditwithgk/mcp-reportcard">mcp-reportcard</a> is open source (MIT). Built by Gopi K Aitham (<a href="https://github.com/builditwithgk">builditwithgk</a>) · <a href="https://scaleup-solutions.in/">scaleup-solutions.in</a>.
     Token counts are estimates; each provider formats tool definitions differently.
   </footer>
 </main>

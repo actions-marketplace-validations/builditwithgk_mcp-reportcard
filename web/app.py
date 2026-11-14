@@ -1,4 +1,4 @@
-"""Hosted MCP Doctor demo: paste a tools/list JSON, get a report card.
+"""Hosted mcp-reportcard demo: paste a tools/list JSON, get a report card.
 
 Runs the same lint, token and scoring code as the CLI. It never connects to servers, calls
 tools or contacts an LLM, so it is cheap and safe to host on shared hosting. Needs only Flask.
@@ -15,9 +15,9 @@ from flask import Flask, render_template, request
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT.parent / "src"))  # use the package source without installing it
 
-from mcp_doctor.analyze import analyze  # noqa: E402
-from mcp_doctor.loader import LoadError, load_tools_text  # noqa: E402
-from mcp_doctor.report import sorted_issues  # noqa: E402
+from mcp_reportcard.analyze import analyze  # noqa: E402
+from mcp_reportcard.loader import LoadError, load_tools_text  # noqa: E402
+from mcp_reportcard.report import sorted_issues  # noqa: E402
 
 MAX_BYTES = 512 * 1024
 MAX_TOOLS = 500

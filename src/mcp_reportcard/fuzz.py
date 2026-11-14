@@ -15,8 +15,8 @@ from typing import Any
 import anyio
 from mcp import Client, MCPError
 
-from mcp_doctor.connect import new_client
-from mcp_doctor.models import FuzzCase, FuzzOutcome
+from mcp_reportcard.connect import new_client
+from mcp_reportcard.models import FuzzCase, FuzzOutcome
 
 MAX_PROPS_PER_TOOL = 5
 LONG_STRING = "A" * 10_000

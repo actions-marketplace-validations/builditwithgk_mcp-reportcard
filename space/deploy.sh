@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Deploy the static web demo to the Hugging Face Space builditwithgk/mcp-doctor (free tier).
+# Deploy the static web demo to the Hugging Face Space builditwithgk/mcp-reportcard (free tier).
 # Needs: `hf auth login` done once. Run from the repo root:  bash space/deploy.sh
 set -euo pipefail
 
-SPACE="${SPACE:-builditwithgk/mcp-doctor}"
+SPACE="${SPACE:-builditwithgk/mcp-reportcard}"
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 

@@ -1,4 +1,4 @@
-"""Command-line interface: `mcp-doctor check`, `mcp-doctor dump`, `mcp-doctor rules`."""
+"""Command-line interface: `mcp-reportcard check`, `mcp-reportcard dump`, `mcp-reportcard rules`."""
 
 from __future__ import annotations
 
@@ -17,10 +17,10 @@ try:  # built in from Python 3.11
 except NameError:  # pragma: no cover
     from exceptiongroup import BaseExceptionGroup  # installed with anyio on 3.10
 
-from mcp_doctor import __version__, report as render
-from mcp_doctor.analyze import analyze
-from mcp_doctor.loader import LoadError, load_tools_file
-from mcp_doctor.rules import RULES
+from mcp_reportcard import __version__, report as render
+from mcp_reportcard.analyze import analyze
+from mcp_reportcard.loader import LoadError, load_tools_file
+from mcp_reportcard.rules import RULES
 
 app = typer.Typer(
     add_completion=False,
@@ -75,14 +75,14 @@ def _is_file(source: str) -> bool:
 def _load(source: str) -> tuple[str, list[dict[str, Any]]]:
     if _is_file(source):
         return Path(source).name, load_tools_file(source)
-    from mcp_doctor.connect import fetch_tools
+    from mcp_reportcard.connect import fetch_tools
 
     return anyio.run(fetch_tools, source)
 
 
 def _version(value: bool) -> None:
     if value:
-        typer.echo(f"mcp-doctor {__version__}")
+        typer.echo(f"mcp-reportcard {__version__}")
         raise typer.Exit()
 
 
@@ -111,7 +111,7 @@ def check(
 ) -> None:
     """Lint a server's tools, estimate token cost, optionally fuzz, and print a report card."""
     if server_logs:
-        from mcp_doctor.connect import show_server_logs
+        from mcp_reportcard.connect import show_server_logs
 
         show_server_logs(True)
     try:
@@ -128,7 +128,7 @@ def check(
         if _is_file(source):
             err.print("[yellow]--fuzz needs a live server; skipping it for a JSON file.[/]")
         else:
-            from mcp_doctor.fuzz import run_fuzz
+            from mcp_reportcard.fuzz import run_fuzz
 
             if allow_unsafe:
                 err.print("[bold yellow]--allow-unsafe: calling tools that may change data.[/]")
@@ -160,7 +160,7 @@ def dump(
     output: Annotated[Path | None, typer.Option("--output", "-o", help="File to write.")] = None,
 ) -> None:
     """Save a live server's tools/list as JSON (to check offline or paste into the web demo)."""
-    from mcp_doctor.connect import fetch_tools
+    from mcp_reportcard.connect import fetch_tools
 
     try:
         _, tools = anyio.run(fetch_tools, source)
@@ -180,7 +180,7 @@ def list_rules() -> None:
     """List every check with its ID and severity."""
     from rich.table import Table
 
-    table = Table(title="MCP Doctor rules")
+    table = Table(title="mcp-reportcard rules")
     table.add_column("ID")
     table.add_column("Severity")
     table.add_column("Check")

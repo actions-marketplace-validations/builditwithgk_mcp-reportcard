@@ -1,6 +1,6 @@
-"""The same order service as bad_server.py, written so MCP Doctor gives it an A.
+"""The same order service as bad_server.py, written so mcp-reportcard gives it an A.
 
-Run:  mcp-doctor check "python examples/good_server.py" --fuzz
+Run:  mcp-reportcard check "python examples/good_server.py" --fuzz
 """
 
 from typing import Annotated, Literal

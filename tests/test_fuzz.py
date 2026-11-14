@@ -4,10 +4,10 @@ from pathlib import Path
 import anyio
 import pytest
 
-from mcp_doctor.analyze import analyze
-from mcp_doctor.connect import fetch_tools
-from mcp_doctor.fuzz import classify, find_leak, is_safe_to_fuzz, make_cases, run_fuzz, sample_value
-from mcp_doctor.models import FuzzCase
+from mcp_reportcard.analyze import analyze
+from mcp_reportcard.connect import fetch_tools
+from mcp_reportcard.fuzz import classify, find_leak, is_safe_to_fuzz, make_cases, run_fuzz, sample_value
+from mcp_reportcard.models import FuzzCase
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "examples"))
 import bad_server  # noqa: E402

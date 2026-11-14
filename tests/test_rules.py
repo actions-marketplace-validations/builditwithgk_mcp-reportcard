@@ -1,6 +1,6 @@
-from mcp_doctor import analyze, load_tools
-from mcp_doctor.loader import LoadError
-from mcp_doctor.rules import lint_server, lint_tool, name_style
+from mcp_reportcard import analyze, load_tools
+from mcp_reportcard.loader import LoadError
+from mcp_reportcard.rules import lint_server, lint_tool, name_style
 
 import pytest
 
@@ -112,9 +112,9 @@ def test_scoring_and_grades():
 
 
 def test_report_serialises():
-    from mcp_doctor.report import to_json, to_markdown
+    from mcp_reportcard.report import to_json, to_markdown
 
     r = analyze([good_tool(), good_tool(name="b", description="")], server="demo")
     assert '"grade"' in to_json(r)
     md = to_markdown(r)
-    assert "MCP Doctor report" in md and "D001" in md
+    assert "MCP report card" in md and "D001" in md

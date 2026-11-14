@@ -1,6 +1,6 @@
 """A deliberately sloppy MCP server for demos and tests. Every tool has a common mistake.
 
-Run:  mcp-doctor check "python examples/bad_server.py" --fuzz
+Run:  mcp-reportcard check "python examples/bad_server.py" --fuzz
 """
 
 import traceback

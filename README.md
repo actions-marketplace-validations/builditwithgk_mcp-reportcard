@@ -1,27 +1,27 @@
-# mcp-doctor
+# mcp-reportcard
 
 > **A health check for MCP servers.** Lint your tools, measure their token cost, fuzz their error handling — and get a graded report card with a concrete fix for every issue.
 
-![Python](https://img.shields.io/badge/python-3.10%2B-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Version](https://img.shields.io/badge/version-0.1.0-blue) ![MCP](https://img.shields.io/badge/MCP-any%20server%2C%20any%20language-brightgreen) [![CI](https://github.com/builditwithgk/mcp-doctor/actions/workflows/ci.yml/badge.svg)](https://github.com/builditwithgk/mcp-doctor/actions/workflows/ci.yml) [![Hugging Face Space](https://img.shields.io/badge/%F0%9F%A4%97%20Space-live%20demo-yellow)](https://huggingface.co/spaces/builditwithgk/mcp-doctor)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Version](https://img.shields.io/badge/version-0.1.0-blue) ![MCP](https://img.shields.io/badge/MCP-any%20server%2C%20any%20language-brightgreen) [![CI](https://github.com/builditwithgk/mcp-reportcard/actions/workflows/ci.yml/badge.svg)](https://github.com/builditwithgk/mcp-reportcard/actions/workflows/ci.yml) [![Hugging Face Space](https://img.shields.io/badge/%F0%9F%A4%97%20Space-live%20demo-yellow)](https://huggingface.co/spaces/builditwithgk/mcp-reportcard)
 
-When an agent picks the wrong tool, sends malformed arguments, or burns context on bloated definitions, the cause is usually in the server — and the model only ever sees what your `tools/list` says. `mcp-doctor` checks exactly that, in seconds, for any MCP server in any language.
+When an agent picks the wrong tool, sends malformed arguments, or burns context on bloated definitions, the cause is usually in the server — and the model only ever sees what your `tools/list` says. `mcp-reportcard` checks exactly that, in seconds, for any MCP server in any language.
 
-**Try it in the browser:** [huggingface.co/spaces/builditwithgk/mcp-doctor](https://huggingface.co/spaces/builditwithgk/mcp-doctor) — paste a `tools/list` JSON, get the report card.
+**Try it in the browser:** [huggingface.co/spaces/builditwithgk/mcp-reportcard](https://huggingface.co/spaces/builditwithgk/mcp-reportcard) — paste a `tools/list` JSON, get the report card.
 
 ## Why it's different
 
 **It grades what the model sees, not what your code does.**
 
-The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) is for poking at a server by hand. `mcp-doctor` is automated and opinionated: it scores tool names, descriptions, schemas and safety annotations against the things that actually make models misbehave — vague descriptions, undocumented parameters, near-duplicate tools, missing `readOnlyHint`s, stack traces in error replies — and it runs in CI.
+The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) is for poking at a server by hand. `mcp-reportcard` is automated and opinionated: it scores tool names, descriptions, schemas and safety annotations against the things that actually make models misbehave — vague descriptions, undocumented parameters, near-duplicate tools, missing `readOnlyHint`s, stack traces in error replies — and it runs in CI.
 
 Every finding comes with a rule ID, a severity and a specific fix. No LLM is involved in the checks, so results are deterministic and safe to gate a merge on.
 
 ## Example output
 
-Running against the deliberately sloppy server in [`examples/bad_server.py`](examples/bad_server.py):
+Running against the deliberately sloppy server in [`examples/bad_server.py`](https://github.com/builditwithgk/mcp-reportcard/blob/main/examples/bad_server.py):
 
 ```text
-┌──────── MCP Doctor · acme-orders (bad example) ─────────┐
+┌──────── mcp-reportcard · acme-orders (bad example) ─────────┐
 │ Grade D  ·  score 67/100                                 │
 │ 7 tools  ·  1 errors  ·  16 warnings  ·  5 info          │
 │ ~351 tokens per turn (tiktoken o200k_base (approximate)) │
@@ -33,50 +33,50 @@ Running against the deliberately sloppy server in [`examples/bad_server.py`](exa
   ...
 ```
 
-The same service written properly, [`examples/good_server.py`](examples/good_server.py), scores **A (100)**.
+The same service written properly, [`examples/good_server.py`](https://github.com/builditwithgk/mcp-reportcard/blob/main/examples/good_server.py), scores **A (100)**.
 
-**Field-tested:** run against six official MCP reference servers (Node and Python, stdio and HTTP) — 159 fuzz cases, zero crashes, and two over-eager rules fixed as a result. Numbers and details in [`FINDINGS.md`](FINDINGS.md).
+**Field-tested:** run against six official MCP reference servers (Node and Python, stdio and HTTP) — 159 fuzz cases, zero crashes, and two over-eager rules fixed as a result. Numbers and details in [`FINDINGS.md`](https://github.com/builditwithgk/mcp-reportcard/blob/main/FINDINGS.md).
 
 ## Install & run
 
 Requires Python 3.10+.
 
 ```bash
-pip install "mcp-doctor[tokens] @ git+https://github.com/builditwithgk/mcp-doctor"
+pip install "mcp-reportcard[tokens] @ git+https://github.com/builditwithgk/mcp-reportcard"
 
 # …or from source
-git clone https://github.com/builditwithgk/mcp-doctor
-cd mcp-doctor
+git clone https://github.com/builditwithgk/mcp-reportcard
+cd mcp-reportcard
 pip install -e ".[dev]"
 ```
 
-A PyPI release (`pip install mcp-doctor`) is coming. The `[tokens]` extra adds tiktoken for more accurate token counts; without it, a characters/4 estimate is used.
+A PyPI release (`pip install mcp-reportcard`) is coming. The `[tokens]` extra adds tiktoken for more accurate token counts; without it, a characters/4 estimate is used.
 
 ## Command line
 
 ```bash
 # A stdio server (any language): pass the command that starts it
-mcp-doctor check "python server.py"
-mcp-doctor check "npx -y @modelcontextprotocol/server-everything"
+mcp-reportcard check "python server.py"
+mcp-reportcard check "npx -y @modelcontextprotocol/server-everything"
 
 # A Streamable HTTP server
-mcp-doctor check http://localhost:8000/mcp
+mcp-reportcard check http://localhost:8000/mcp
 
 # A saved tools/list JSON (offline, no server needed)
-mcp-doctor check tools.json
+mcp-reportcard check tools.json
 
 # Also test error handling with bad inputs (read-only tools only — see below)
-mcp-doctor check "python server.py" --fuzz
+mcp-reportcard check "python server.py" --fuzz
 
 # Reports for PRs and CI
-mcp-doctor check "python server.py" -f markdown -o report.md
-mcp-doctor check "python server.py" -f json --fail-under 80
+mcp-reportcard check "python server.py" -f markdown -o report.md
+mcp-reportcard check "python server.py" -f json --fail-under 80
 
 # Save a server's tool list (for offline checks or the web demo)
-mcp-doctor dump "python server.py" -o tools.json
+mcp-reportcard dump "python server.py" -o tools.json
 
 # List every check
-mcp-doctor rules
+mcp-reportcard rules
 ```
 
 ## Use in CI
@@ -84,20 +84,20 @@ mcp-doctor rules
 `--fail-under` exits 1 when the score drops below the threshold:
 
 ```yaml
-# .github/workflows/mcp-doctor.yml
+# .github/workflows/mcp-reportcard.yml
 on: pull_request
 jobs:
-  mcp-doctor:
+  mcp-reportcard:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install "mcp-doctor @ git+https://github.com/builditwithgk/mcp-doctor"
-      - run: mcp-doctor check "python server.py" --fuzz -f markdown -o mcp-doctor.md --fail-under 80
+      - run: pip install "mcp-reportcard @ git+https://github.com/builditwithgk/mcp-reportcard"
+      - run: mcp-reportcard check "python server.py" --fuzz -f markdown -o mcp-reportcard.md --fail-under 80
 ```
 
-This repo dogfoods it: CI runs `mcp-doctor` against [`examples/good_server.py`](examples/good_server.py) with `--fail-under 90` on Linux, macOS and Windows.
+This repo dogfoods it: CI runs `mcp-reportcard` against [`examples/good_server.py`](https://github.com/builditwithgk/mcp-reportcard/blob/main/examples/good_server.py) with `--fail-under 90` on Linux, macOS and Windows.
 
 ## What it checks
 
@@ -125,8 +125,8 @@ This repo dogfoods it: CI runs `mcp-doctor` against [`examples/good_server.py`](
 
 The demo runs the static checks only — it never connects to servers, calls tools or contacts an LLM, and nothing pasted is stored. Because the core is pure standard-library Python, it ships two ways from the same code:
 
-- **In the browser** — [`space/`](space/) is a static page that runs `src/mcp_doctor` client-side with [Pyodide](https://pyodide.org). That's the [Hugging Face Space](https://huggingface.co/spaces/builditwithgk/mcp-doctor): no server, free tier. `bash space/build.sh` assembles it into `space/_site/`; `bash space/deploy.sh` publishes it. The same folder works on GitHub Pages or any static host.
-- **As a Flask app** — [`web/`](web/), for Python hosting such as cPanel: create a Python app with `web/` as the root and `passenger_wsgi.py` as the startup file, install `web/requirements.txt`, and upload `src/` and `examples/` alongside.
+- **In the browser** — [`space/`](https://github.com/builditwithgk/mcp-reportcard/tree/main/space) is a static page that runs `src/mcp_reportcard` client-side with [Pyodide](https://pyodide.org). That's the [Hugging Face Space](https://huggingface.co/spaces/builditwithgk/mcp-reportcard): no server, free tier. `bash space/build.sh` assembles it into `space/_site/`; `bash space/deploy.sh` publishes it. The same folder works on GitHub Pages or any static host.
+- **As a Flask app** — [`web/`](https://github.com/builditwithgk/mcp-reportcard/tree/main/web), for Python hosting such as cPanel: create a Python app with `web/` as the root and `passenger_wsgi.py` as the startup file, install `web/requirements.txt`, and upload `src/` and `examples/` alongside.
 
 ```bash
 pip install flask
@@ -144,7 +144,7 @@ python web/app.py     # http://localhost:5000
 ## Roadmap
 
 - Tool-selection eval (bring your own API key): generate realistic tasks per tool and measure how often a model picks the right one.
-- README badge (`mcp-doctor: A`).
+- README badge (`mcp-reportcard: A`).
 - Resource and prompt checks.
 - PyPI release.
 

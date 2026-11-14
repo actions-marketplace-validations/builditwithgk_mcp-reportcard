@@ -5,8 +5,8 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Any
 
-from mcp_doctor import rules, tokens
-from mcp_doctor.models import FuzzOutcome, Issue, Report, Severity, ToolResult
+from mcp_reportcard import rules, tokens
+from mcp_reportcard.models import FuzzOutcome, Issue, Report, Severity, ToolResult
 
 TOOL_PENALTY = {Severity.ERROR: 25, Severity.WARNING: 10, Severity.INFO: 3}
 SERVER_PENALTY = {Severity.ERROR: 10, Severity.WARNING: 5, Severity.INFO: 1}

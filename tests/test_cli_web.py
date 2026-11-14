@@ -4,7 +4,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from mcp_doctor.cli import app
+from mcp_reportcard.cli import app
 
 ROOT = Path(__file__).resolve().parents[1]
 BAD = str(ROOT / "examples" / "bad_tools.json")
@@ -28,7 +28,7 @@ def test_markdown_to_file(tmp_path):
     out = tmp_path / "report.md"
     result = runner.invoke(app, ["check", BAD, "-f", "markdown", "-o", str(out)])
     assert result.exit_code == 0
-    assert "MCP Doctor report" in out.read_text(encoding="utf-8")
+    assert "MCP report card" in out.read_text(encoding="utf-8")
 
 
 def test_bad_input_exit_code(tmp_path):
