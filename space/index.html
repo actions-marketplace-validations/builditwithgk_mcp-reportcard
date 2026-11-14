@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mcp-doctor</title>
+<meta name="description" content="Paste an MCP server's tools/list JSON and get a graded report card: descriptions, schemas, safety annotations and token cost. Runs entirely in your browser.">
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --text: #1d1d1b; --muted: #6b6b66; --border: #e3e3de;
+    --accent: #2f5bd3; --err: #c0392b; --warn: #b7791f; --info: #2c7a98; --ok: #2f8a4c;
+    --code: #f0f0ec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141413; --panel: #1e1e1c; --text: #ecece8; --muted: #a0a09a; --border: #33332f;
+      --accent: #7b9cff; --err: #ff7a6b; --warn: #f0b354; --info: #6cc3e0; --ok: #6fd18f;
+      --code: #2a2a27;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 960px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  h2 { font-size: 18px; margin: 32px 0 12px; }
+  .lede { color: var(--muted); margin: 0 0 24px; max-width: 660px; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  textarea { width: 100%; min-height: 240px; resize: vertical; border: 1px solid var(--border);
+             border-radius: 8px; padding: 12px; background: var(--code); color: var(--text);
+             font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  button { border: 1px solid var(--border); background: var(--panel); color: var(--text);
+           padding: 8px 14px; border-radius: 8px; font: inherit; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button:disabled { opacity: 0.55; cursor: progress; }
+  .hint { color: var(--muted); font-size: 13px; }
+  #status { margin-left: auto; }
+  code { background: var(--code); padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+  .error { border-left: 4px solid var(--err); padding: 10px 14px; background: var(--panel); margin-top: 16px; border-radius: 6px; }
+  .card { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+  .grade { font-size: 56px; font-weight: 800; line-height: 1; width: 88px; height: 88px; border-radius: 16px;
+           display: grid; place-items: center; color: #fff; }
+  .g-A { background: var(--ok); } .g-B { background: #5a9e3a; } .g-C { background: var(--warn); }
+  .g-D { background: #c8642a; } .g-F { background: var(--err); }
+  .stats { display: grid; gap: 4px; }
+  .big { font-size: 22px; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; } td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tablewrap { overflow-x: auto; }
+  ul.issues { list-style: none; margin: 0; padding: 0; }
+  ul.issues li { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  ul.issues li:last-child { border-bottom: 0; }
+  .sev { display: inline-block; font-size: 12px; font-weight: 700; padding: 1px 7px; border-radius: 99px;
+         border: 1px solid currentColor; margin-right: 6px; text-transform: uppercase; }
+  .sev-error { color: var(--err); } .sev-warning { color: var(--warn); } .sev-info { color: var(--info); }
+  .fix { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .tool { font-weight: 600; }
+  footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
+  footer a, .lede a, .hint a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>🩺 mcp-doctor</h1>
+  <p class="lede">A health check for MCP servers. Paste a server's <code>tools/list</code> JSON and get a graded
+    report card for its tool names, descriptions, schemas, safety annotations and token cost, with a concrete fix
+    for every issue. The checker runs <strong>entirely in your browser</strong> (Python via Pyodide), so nothing
+    you paste leaves this page.</p>
+
+  <div class="panel">
+    <label for="tools" class="hint">tools/list JSON: a list of tools, <code>{"tools": [...]}</code>, or a full JSON-RPC response</label>
+    <textarea id="tools" spellcheck="false" placeholder='{"tools": [{"name": "search_orders", "description": "...", "inputSchema": {...}}]}'></textarea>
+    <div class="row">
+      <button id="check" class="primary" disabled>Check tools</button>
+      <button id="sample-bad">Load a bad example</button>
+      <button id="sample-good">Load a good example</button>
+      <span id="status" class="hint">Loading Python in your browser…</span>
+    </div>
+    <p class="hint">Get the JSON from your own server with the CLI:
+      <code>mcp-doctor dump "python server.py"</code>. The CLI can also fuzz a live server's error handling —
+      <a href="https://github.com/builditwithgk/mcp-doctor">see GitHub</a>.</p>
+  </div>
+
+  <div id="out"></div>
+
+  <footer>
+    <a href="https://github.com/builditwithgk/mcp-doctor">mcp-doctor</a> is open source (MIT). Built by Gopi K Aitham
+    (<a href="https://github.com/builditwithgk">builditwithgk</a>) · <a href="https://scaleup-solutions.in/">scaleup-solutions.in</a>.
+    Token counts here use a characters/4 estimate; the CLI with <code>[tokens]</code> uses tiktoken.
+  </footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<script>
+const MODULES = ["__init__", "models", "loader", "tokens", "rules", "analyze", "report"];
+const MAX_CHARS = 512 * 1024;
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmt = (n) => Number(n).toLocaleString("en-US");
+let py = null;
+
+const RUN = `
+import json
+from mcp_doctor.analyze import analyze
+from mcp_doctor.loader import LoadError, load_tools_text
+from mcp_doctor.report import sorted_issues
+
+def run(src):
+    try:
+        tools = load_tools_text(src)
+        if len(tools) > 500:
+            raise LoadError(f"Too many tools ({len(tools)}); the demo checks up to 500.")
+        r = analyze(tools, server="pasted tools")
+        d = r.to_dict()
+        d["issues"] = [i.to_dict() for i in sorted_issues(r.all_issues)]
+        return json.dumps({"ok": True, "report": d})
+    except LoadError as e:
+        return json.dumps({"ok": False, "error": str(e)})
+`;
+
+async function boot() {
+  try {
+    py = await loadPyodide();
+    py.FS.mkdirTree("/app/mcp_doctor");
+    for (const m of MODULES) {
+      const res = await fetch(`mcp_doctor/${m}.py`);
+      if (!res.ok) throw new Error(`could not load mcp_doctor/${m}.py`);
+      py.FS.writeFile(`/app/mcp_doctor/${m}.py`, await res.text());
+    }
+    py.runPython("import sys; sys.path.insert(0, '/app')\n" + RUN);
+    $("status").textContent = "Ready";
+    $("check").disabled = false;
+  } catch (e) {
+    $("status").textContent = "Failed to load Python: " + e.message;
+  }
+}
+
+function renderReport(r) {
+  const c = r.counts;
+  const tools = [...r.tools].sort((a, b) => a.score - b.score || a.name.localeCompare(b.name));
+  const count = (t, sev) => t.issues.filter((i) => i.severity === sev).length;
+  let html = `<h2>Report card</h2>
+    <div class="panel card">
+      <div class="grade g-${esc(r.grade)}">${esc(r.grade)}</div>
+      <div class="stats">
+        <div class="big">${r.score}/100</div>
+        <div>${r.tools.length} tools · ${c.error} errors · ${c.warning} warnings · ${c.info} info</div>
+        <div class="hint">About ${fmt(r.total_tokens)} tokens added to every turn (${esc(r.token_method)})</div>
+      </div>
+    </div>
+    <h2>Tools, worst first</h2>
+    <div class="panel tablewrap"><table>
+      <thead><tr><th>Tool</th><th class="num">Score</th><th class="num">Tokens</th><th class="num">Errors</th><th class="num">Warnings</th><th class="num">Info</th></tr></thead><tbody>`;
+  for (const t of tools) {
+    html += `<tr><td><code>${esc(t.name)}</code></td><td class="num">${t.score}</td><td class="num">${fmt(t.tokens)}</td>
+      <td class="num">${count(t, "error")}</td><td class="num">${count(t, "warning")}</td><td class="num">${count(t, "info")}</td></tr>`;
+  }
+  html += `</tbody></table></div>`;
+  if (r.issues.length) {
+    html += `<h2>Issues and fixes</h2><div class="panel"><ul class="issues">`;
+    for (const i of r.issues) {
+      html += `<li><span class="sev sev-${esc(i.severity)}">${esc(i.severity)}</span><code>${esc(i.rule)}</code>
+        <span class="tool">${esc(i.tool || "server")}</span>: ${esc(i.message)}
+        <div class="fix">Fix: ${esc(i.fix)}</div></li>`;
+    }
+    html += `</ul></div>`;
+  } else {
+    html += `<p>No issues found. Nice work.</p>`;
+  }
+  return html;
+}
+
+function check() {
+  const src = $("tools").value;
+  if (!src.trim()) { $("out").innerHTML = `<div class="error">Paste a tools/list JSON first, or load an example.</div>`; return; }
+  if (src.length > MAX_CHARS) { $("out").innerHTML = `<div class="error"><strong>Couldn't read that:</strong> input is larger than 512 KB.</div>`; return; }
+  const result = JSON.parse(py.globals.get("run")(src));
+  $("out").innerHTML = result.ok ? renderReport(result.report)
+    : `<div class="error"><strong>Couldn't read that:</strong> ${esc(result.error)}</div>`;
+  $("out").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function loadSample(name) {
+  const res = await fetch(`samples/${name}_tools.json`);
+  $("tools").value = await res.text();
+  $("out").innerHTML = "";
+}
+
+$("check").addEventListener("click", check);
+$("sample-bad").addEventListener("click", () => loadSample("bad"));
+$("sample-good").addEventListener("click", () => loadSample("good"));
+boot();
+</script>
+</body>
+</html>

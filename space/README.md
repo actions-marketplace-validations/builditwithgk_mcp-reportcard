@@ -3,8 +3,7 @@ title: mcp-doctor
 emoji: 🩺
 colorFrom: blue
 colorTo: green
-sdk: docker
-app_port: 7860
+sdk: static
 pinned: true
 license: mit
 short_description: Health check and report card for MCP server tools

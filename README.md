@@ -123,15 +123,15 @@ This repo dogfoods it: CI runs `mcp-doctor` against [`examples/good_server.py`](
 
 ## Web demo
 
-[`web/`](web/) is a small Flask app — the same code behind the [Hugging Face Space](https://huggingface.co/spaces/builditwithgk/mcp-doctor). It runs the static checks only: it never connects to servers, calls tools or contacts an LLM, and nothing pasted is stored.
+The demo runs the static checks only — it never connects to servers, calls tools or contacts an LLM, and nothing pasted is stored. Because the core is pure standard-library Python, it ships two ways from the same code:
+
+- **In the browser** — [`space/`](space/) is a static page that runs `src/mcp_doctor` client-side with [Pyodide](https://pyodide.org). That's the [Hugging Face Space](https://huggingface.co/spaces/builditwithgk/mcp-doctor): no server, free tier. `bash space/build.sh` assembles it into `space/_site/`; `bash space/deploy.sh` publishes it. The same folder works on GitHub Pages or any static host.
+- **As a Flask app** — [`web/`](web/), for Python hosting such as cPanel: create a Python app with `web/` as the root and `passenger_wsgi.py` as the startup file, install `web/requirements.txt`, and upload `src/` and `examples/` alongside.
 
 ```bash
 pip install flask
 python web/app.py     # http://localhost:5000
 ```
-
-- **Hugging Face Space:** [`space/`](space/) holds the Dockerfile and Space card; `bash space/deploy.sh` publishes it.
-- **cPanel / shared hosting:** create a Python app with `web/` as the root and `passenger_wsgi.py` as the startup file, install `web/requirements.txt`, and upload `src/` and `examples/` alongside.
 
 ## Limitations
 
