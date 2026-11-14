@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.10"
-authors = [{ name = "Scaleup Solutions" }]
+authors = [{ name = "Gopi K Aitham (builditwithgk)" }]
 keywords = ["mcp", "model-context-protocol", "llm", "ai-agents", "lint", "fuzzing"]
 classifiers = [
     "Development Status :: 3 - Alpha",
