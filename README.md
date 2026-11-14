@@ -163,6 +163,21 @@ This repo dogfoods both: CI runs the CLI and the action against [`examples/good_
 
 ## Web demo
 
+### Test your own server in the browser
+
+The [browser demo](https://huggingface.co/spaces/builditwithgk/mcp-reportcard) can't launch your server, so save its tool list with the CLI and paste it in:
+
+1. Save the tool list (use whatever command starts your server, or an `http(s)://…/mcp` URL):
+   ```bash
+   mcp-reportcard dump "python server.py" -o tools.json
+   ```
+2. Open `tools.json`, copy everything, and paste it into the text box on the [demo page](https://huggingface.co/spaces/builditwithgk/mcp-reportcard).
+3. Click **Check tools**.
+
+You get the same lint findings as the CLI. Two differences: token counts are a characters ÷ 4 estimate (the CLI with `[tokens]` uses tiktoken), and there's no fuzzing, because the browser never calls your server. To try it without a server of your own, click **Load a bad example** first.
+
+### How the demo is built
+
 The demo runs the static checks only — it never connects to servers, calls tools or contacts an LLM, and nothing pasted is stored. Because the core is pure standard-library Python, it ships two ways from the same code:
 
 - **In the browser** — [`space/`](https://github.com/builditwithgk/mcp-reportcard/tree/main/space) is a static page that runs `src/mcp_reportcard` client-side with [Pyodide](https://pyodide.org). That's the [Hugging Face Space](https://huggingface.co/spaces/builditwithgk/mcp-reportcard): no server, free tier. `bash space/build.sh` assembles it into `space/_site/`; `bash space/deploy.sh` publishes it. The same folder works on GitHub Pages or any static host.

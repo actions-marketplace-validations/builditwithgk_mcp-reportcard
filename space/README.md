@@ -25,4 +25,6 @@ tags:
 - **Source & docs:** https://github.com/builditwithgk/mcp-reportcard
 - **This Space** runs the static checks only: it never connects to servers, calls tools or contacts an LLM, and nothing you paste is stored. For live checks and fuzzing of a server's error handling, use the CLI.
 
+**Test your own server:** run `pip install mcp-reportcard`, then `mcp-reportcard dump "python server.py" -o tools.json` (use the command that starts your server, or its URL). Paste the contents of `tools.json` into the box and click **Check tools**. Token counts here are an estimate; the CLI gives exact counts and can also fuzz the server.
+
 Built by [Gopi K Aitham (builditwithgk)](https://github.com/builditwithgk) — available for freelance and contract work on AI, agent, and MCP tooling.
