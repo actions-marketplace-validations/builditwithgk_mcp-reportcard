@@ -1,0 +1,118 @@
+{
+  "tools": [
+    {
+      "name": "search_orders",
+      "description": "Find orders whose ID contains the query text and return their IDs.\nUse this when the user does not know the exact order ID; use get_order when they do.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "description": "Text to match against order IDs.",
+            "maxLength": 100,
+            "title": "Query",
+            "type": "string"
+          },
+          "status": {
+            "default": "any",
+            "description": "Only return orders in this status.",
+            "enum": [
+              "any",
+              "pending",
+              "shipped"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "search_ordersArguments"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Result",
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "search_ordersOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true
+      }
+    },
+    {
+      "name": "get_order",
+      "description": "Return the status and total of one order. Use this when you already have the exact order ID.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "order_id": {
+            "description": "Order ID, digits only, e.g. '1001'.",
+            "pattern": "^\\d+$",
+            "title": "Order Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id"
+        ],
+        "title": "get_orderArguments"
+      },
+      "annotations": {
+        "readOnlyHint": true
+      }
+    },
+    {
+      "name": "cancel_order",
+      "description": "Cancel a pending order. Only use this after the user has explicitly confirmed the\ncancellation; shipped orders cannot be cancelled.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "order_id": {
+            "description": "Order ID, digits only, e.g. '1001'.",
+            "pattern": "^\\d+$",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "reason": {
+            "description": "Short reason shown to the customer.",
+            "maxLength": 200,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id",
+          "reason"
+        ],
+        "title": "cancel_orderArguments"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "cancel_orderOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true
+      }
+    }
+  ]
+}
