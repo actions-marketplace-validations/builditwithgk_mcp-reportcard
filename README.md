@@ -44,6 +44,9 @@ Requires Python 3.10+.
 ```bash
 pip install "mcp-reportcard[tokens]"
 
+# …or run it without installing (uv)
+uvx --from "mcp-reportcard[tokens]" mcp-reportcard check "python server.py"
+
 # …or from source
 git clone https://github.com/builditwithgk/mcp-reportcard
 cd mcp-reportcard
@@ -114,6 +117,21 @@ jobs:
 | `comment` | `true` | Post/update the sticky PR comment. |
 
 Outputs: `grade`, `score`, `report` (Markdown path) and `json` (JSON path). mcp-reportcard installs into its own virtualenv, so the Python your server runs on is left untouched.
+
+### pre-commit
+
+Run it before every commit with [pre-commit](https://pre-commit.com):
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/builditwithgk/mcp-reportcard
+    rev: v0.1.2
+    hooks:
+      - id: mcp-reportcard
+        args: ["python server.py", "--fail-under", "80"]   # or a tools/list JSON file
+        files: ^server\.py$                               # optional: only when these files change
+```
 
 Prefer the plain CLI? `pip install mcp-reportcard` and `mcp-reportcard check "python server.py" --fail-under 80` (exits 1 below the bar; `--json-out` writes JSON alongside a Markdown report).
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mcp-reportcard"
-version = "0.1.1"
+version = "0.1.2"
 description = "A health check for MCP servers: lint tool descriptions and schemas, estimate token cost, fuzz error handling, and get a graded report card."
 readme = "README.md"
 license = "MIT"
