@@ -1,0 +1,16 @@
+# pre-commit hook: grade your MCP server's tools before each commit.
+# Pass what to check (a server command, URL or tools/list JSON) and a bar in `args`:
+#
+#   - repo: https://github.com/builditwithgk/mcp-reportcard
+#     rev: v0.1.2
+#     hooks:
+#       - id: mcp-reportcard
+#         args: ["python server.py", "--fail-under", "80"]
+#         files: ^server\.py$        # optional: only run when these files change
+- id: mcp-reportcard
+  name: mcp-reportcard
+  description: Grade an MCP server's tool definitions (A-F) and fail below a score.
+  entry: mcp-reportcard check
+  language: python
+  pass_filenames: false
+  require_serial: true
