@@ -2,7 +2,7 @@
 
 > **A health check for MCP servers.** Lint your tools, measure their token cost, fuzz their error handling — and get a graded report card with a concrete fix for every issue.
 
-![Python](https://img.shields.io/badge/python-3.10%2B-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Version](https://img.shields.io/badge/version-0.1.0-blue) ![MCP](https://img.shields.io/badge/MCP-any%20server%2C%20any%20language-brightgreen) [![CI](https://github.com/builditwithgk/mcp-reportcard/actions/workflows/ci.yml/badge.svg)](https://github.com/builditwithgk/mcp-reportcard/actions/workflows/ci.yml) [![Hugging Face Space](https://img.shields.io/badge/%F0%9F%A4%97%20Space-live%20demo-yellow)](https://huggingface.co/spaces/builditwithgk/mcp-reportcard)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue) ![License](https://img.shields.io/badge/license-MIT-green) [![PyPI](https://img.shields.io/pypi/v/mcp-reportcard)](https://pypi.org/project/mcp-reportcard/) ![MCP](https://img.shields.io/badge/MCP-any%20server%2C%20any%20language-brightgreen) [![CI](https://github.com/builditwithgk/mcp-reportcard/actions/workflows/ci.yml/badge.svg)](https://github.com/builditwithgk/mcp-reportcard/actions/workflows/ci.yml) [![Hugging Face Space](https://img.shields.io/badge/%F0%9F%A4%97%20Space-live%20demo-yellow)](https://huggingface.co/spaces/builditwithgk/mcp-reportcard)
 
 When an agent picks the wrong tool, sends malformed arguments, or burns context on bloated definitions, the cause is usually in the server — and the model only ever sees what your `tools/list` says. `mcp-reportcard` checks exactly that, in seconds, for any MCP server in any language.
 
@@ -42,7 +42,7 @@ The same service written properly, [`examples/good_server.py`](https://github.co
 Requires Python 3.10+.
 
 ```bash
-pip install "mcp-reportcard[tokens] @ git+https://github.com/builditwithgk/mcp-reportcard"
+pip install "mcp-reportcard[tokens]"
 
 # …or from source
 git clone https://github.com/builditwithgk/mcp-reportcard
@@ -50,7 +50,7 @@ cd mcp-reportcard
 pip install -e ".[dev]"
 ```
 
-A PyPI release (`pip install mcp-reportcard`) is coming. The `[tokens]` extra adds tiktoken for more accurate token counts; without it, a characters/4 estimate is used.
+The `[tokens]` extra adds tiktoken for more accurate token counts; without it (`pip install mcp-reportcard`), a characters/4 estimate is used.
 
 ## Command line
 
@@ -93,7 +93,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install "mcp-reportcard @ git+https://github.com/builditwithgk/mcp-reportcard"
+      - run: pip install mcp-reportcard
       - run: mcp-reportcard check "python server.py" --fuzz -f markdown -o mcp-reportcard.md --fail-under 80
 ```
 
@@ -146,7 +146,6 @@ python web/app.py     # http://localhost:5000
 - Tool-selection eval (bring your own API key): generate realistic tasks per tool and measure how often a model picks the right one.
 - README badge (`mcp-reportcard: A`).
 - Resource and prompt checks.
-- PyPI release.
 
 ## Development
 
